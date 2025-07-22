@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เกมจำลองกระบวนการผลิตอุตสาหกรรม</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Kanit', 'Sarabun', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #2c3e50);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 2px solid #3498db;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #f1c40f;
+            text-shadow: 0 0 10px rgba(241, 196, 15, 0.5);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: #3498db;
+        }
+        
+        .developer {
+            font-size: 1rem;
+            color: #e74c3c;
+            margin-top: 10px;
+        }
+        
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .panel {
+            background: rgba(30, 40, 70, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+            border: 1px solid #3498db;
+        }
+        
+        .panel-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #2ecc71;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .panel-title i {
+            color: #f1c40f;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            background: rgba(52, 152, 219, 0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+        
+        .tab.active {
+            background: #3498db;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .tab:hover:not(.active) {
+            background: rgba(52, 152, 219, 0.5);
+        }
+        
+        .content-section {
+            display: none;
+        }
+        
+        .content-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .instructions {
+            line-height: 1.8;
+        }
+        
+        .instructions h3 {
+            color: #f1c40f;
+            margin: 15px 0 10px;
+        }
+        
+        .instructions ol {
+            margin-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 10px;
+        }
+        
+        .waste-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .waste-item:hover {
+            background: rgba(0, 0, 0, 0.3);
+            transform: translateX(5px);
+        }
+        
+        .waste-icon {
+            width: 40px;
+            height: 40px;
+            background: #e74c3c;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1.2rem;
+        }
+        
+        .factory-layout {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .station {
+            background: rgba(44, 62, 80, 0.7);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            border: 2px solid #3498db;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .station:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(52, 152, 219, 0.7);
+        }
+        
+        .station::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: #2ecc71;
+        }
+        
+        .station-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #f1c40f;
+        }
+        
+        .station-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #3498db;
+        }
+        
+        .station-progress {
+            height: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: #2ecc71;
+            width: 60%;
+            border-radius: 4px;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .control-btn {
+            flex: 1;
+            padding: 8px;
+            background: rgba(46, 204, 113, 0.3);
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .control-btn:hover {
+            background: rgba(46, 204, 113, 0.7);
+            transform: translateY(-2px);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .stat-card {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #f1c40f;
+            margin: 10px 0;
+        }
+        
+        .stat-title {
+            color: #3498db;
+        }
+        
+        .leaderboard {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .player-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .player-name {
+            font-weight: bold;
+        }
+        
+        .player-score {
+            color: #f1c40f;
+            font-weight: bold;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            margin: 10px 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn-primary {
+            background: #3498db;
+        }
+        
+        .btn-success {
+            background: #2ecc71;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .waste-indicator {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 20px;
+            height: 20px;
+            background: #e74c3c;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        .music-control {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 100;
+            font-size: 1.5rem;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            font-size: 0.9rem;
+            color: #95a5a6;
+        }
+        
+        @media (max-width: 768px) {
+            .factory-layout {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .panel-title {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="music-control">
+        <i class="fas fa-music"></i>
+    </div>
+    
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-industry"></i> เกมจำลองกระบวนการผลิตอุตสาหกรรม</h1>
+            <div class="subtitle">เรียนรู้ความสูญเปล่า 8 ประการ (8 Wastes) และการเพิ่มประสิทธิภาพการผลิต</div>
+            <div class="developer">พัฒนาโดย: อาจารย์เปมิกา แซ่เตียว | หลักสูตรเทคโนโลยีบัณฑิต (เทคโนโลยีอุตสาหกรรม) | วิชาเอกเทคโนโลยีอุตสาหการและการผลิต | คณะเทคโนโลยีอุตสาหกรรม | มหาวิทยาลัยราชภัฏนครศรีธรรมราช</div>
+        </header>
+        
+        <div class="game-container">
+            <div class="panel">
+                <div class="tabs">
+                    <div class="tab active" data-target="instructions"><i class="fas fa-info-circle"></i> วิธีเล่น</div>
+                    <div class="tab" data-target="factory"><i class="fas fa-factory"></i> โรงงาน</div>
+                    <div class="tab" data-target="waste"><i class="fas fa-trash-alt"></i> ความสูญเปล่า</div>
+                    <div class="tab" data-target="stats"><i class="fas fa-chart-bar"></i> สถิติ</div>
+                    <div class="tab" data-target="leaderboard"><i class="fas fa-trophy"></i> อันดับ</div>
+                </div>
+                
+                <div id="instructions" class="content-section active">
+                    <div class="instructions">
+                        <h3><i class="fas fa-gamepad"></i> วัตถุประสงค์ของเกม</h3>
+                        <p>เกมนี้ถูกออกแบบมาเพื่อช่วยให้นักศึกษาเข้าใจแนวคิดเกี่ยวกับความสูญเปล่า 8 ประการในกระบวนการผลิตอุตสาหกรรม และเรียนรู้การคำนวณค่าประสิทธิภาพต่างๆ เช่น OEE (Overall Equipment Effectiveness), Productivity, และ Cycle Time</p>
+                        
+                        <h3><i class="fas fa-play-circle"></i> วิธีการเล่น</h3>
+                        <ol>
+                            <li><strong>เริ่มเกม:</strong> กดปุ่ม "เริ่มเกมใหม่" เพื่อเริ่มการจำลองกระบวนการผลิต</li>
+                            <li><strong>จัดการสถานีงาน:</strong> แต่ละสถานีงานในไลน์การผลิตจะมีปุ่มควบคุมให้คุณปรับปรุงประสิทธิภาพ</li>
+                            <li><strong>ระบุความสูญเปล่า:</strong> ระบุประเภทของความสูญเปล่า 8 ประการที่เกิดขึ้นในกระบวนการผลิต</li>
+                            <li><strong>ปรับปรุงกระบวนการ:</strong> ใช้เครื่องมือต่างๆ เพื่อลดความสูญเปล่าและเพิ่มประสิทธิภาพการผลิต</li>
+                            <li><strong>ติดตามสถิติ:</strong> ดูค่าสถิติการผลิตที่สำคัญในแท็บ "สถิติ"</li>
+                            <li><strong>บันทึกคะแนน:</strong> เมื่อจบเกม ให้บันทึกคะแนนของคุณเพื่อเปรียบเทียบกับผู้เล่นอื่น</li>
+                        </ol>
+                        
+                        <h3><i class="fas fa-tachometer-alt"></i> การคำนวณค่าสำคัญ</h3>
+                        <ul>
+                            <li><strong>OEE (Overall Equipment Effectiveness):</strong> Availability × Performance × Quality</li>
+                            <li><strong>Productivity:</strong> จำนวนผลิตภัณฑ์ที่ผลิตได้ / ทรัพยากรที่ใช้</li>
+                            <li><strong>Cycle Time:</strong> เวลาที่ใช้ในการผลิตหนึ่งหน่วย</li>
+                            <li><strong>Throughput:</strong> จำนวนผลิตภัณฑ์ที่ผลิตได้ในหน่วยเวลา</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div id="factory" class="content-section">
+                    <h2 class="panel-title"><i class="fas fa-industry"></i> ไลน์การผลิต</h2>
+                    <p>จัดการสถานีงานต่างๆ ในไลน์การผลิตเพื่อเพิ่มประสิทธิภาพและลดความสูญเปล่า</p>
+                    
+                    <div class="factory-layout">
+                        <div class="station">
+                            <div class="waste-indicator">3</div>
+                            <div class="station-icon"><i class="fas fa-box-open"></i></div>
+                            <div class="station-title">สถานีวัตถุดิบ</div>
+                            <div class="station-progress">
+                                <div class="progress-bar" style="width: 75%"></div>
+                            </div>
+                            <div class="controls">
+                                <button class="control-btn"><i class="fas fa-bolt"></i> เพิ่มความเร็ว</button>
+                            </div>
+                        </div>
+                        
+                        <div class="station">
+                            <div class="station-icon"><i class="fas fa-cogs"></i></div>
+                            <div class="station-title">สถานีประกอบ</div>
+                            <div class="station-progress">
+                                <div class="progress-bar" style="width: 45%"></div>
+                            </div>
+                            <div class="controls">
+                                <button class="control-btn"><i class="fas fa-tools"></i> ซ่อมบำรุง</button>
+                            </div>
+                        </div>
+                        
+                        <div class="station">
+                            <div class="waste-indicator">1</div>
+                            <div class="station-icon"><i class="fas fa-paint-brush"></i></div>
+                            <div class="station-title">สถานีสี</div>
+                            <div class="station-progress">
+                                <div class="progress-bar" style="width: 60%"></div>
+                            </div>
+                            <div class="controls">
+                                <button class="control-btn"><i class="fas fa-user-plus"></i> เพิ่มคนงาน</button>
+                            </div>
+                        </div>
+                        
+                        <div class="station">
+                            <div class="station-icon"><i class="fas fa-check-circle"></i></div>
+                            <div class="station-title">สถานีตรวจสอบ</div>
+                            <div class="station-progress">
+                                <div class="progress-bar" style="width: 85%"></div>
+                            </div>
+                            <div class="controls">
+                                <button class="control-btn"><i class="fas fa-search"></i> ตรวจสอบ</button>
+                            </div>
+                        </div>
+                        
+                        <div class="station">
+                            <div class="waste-indicator">2</div>
+                            <div class="station-icon"><i class="fas fa-warehouse"></i></div>
+                            <div class="station-title">สถานีบรรจุ</div>
+                            <div class="station-progress">
+                                <div class="progress-bar" style="width: 30%"></div>
+                            </div>
+                            <div class="controls">
+                                <button class="control-btn"><i class="fas fa-sync-alt"></i> ปรับปรุง</button>
+                            </div>
+                        </div>
+                        
+                        <div class="station">
+                            <div class="station-icon"><i class="fas fa-shipping-fast"></i></div>
+                            <div class="station-title">สถานีขนส่ง</div>
+                            <div class="station-progress">
+                                <div class="progress-bar" style="width: 90%"></div>
+                            </div>
+                            <div class="controls">
+                                <button class="control-btn"><i class="fas fa-truck-loading"></i> เร่งขนส่ง</button>
+                            </div>
+                        </div>
+                        
+                        <div class="station">
+                            <div class="station-icon"><i class="fas fa-database"></i></div>
+                            <div class="station-title">สถานีคลังสินค้า</div>
+                            <div class="station-progress">
+                                <div class="progress-bar" style="width: 95%"></div>
+                            </div>
+                            <div class="controls">
+                                <button class="control-btn"><i class="fas fa-boxes"></i> จัดระเบียบ</button>
+                            </div>
+                        </div>
+                        
+                        <div class="station">
+                            <div class="waste-indicator">1</div>
+                            <div class="station-icon"><i class="fas fa-chart-line"></i></div>
+                            <div class="station-title">สถานีควบคุม</div>
+                            <div class="station-progress">
+                                <div class="progress-bar" style="width: 65%"></div>
+                            </div>
+                            <div class="controls">
+                                <button class="control-btn"><i class="fas fa-cog"></i> ปรับปรุง</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="waste" class="content-section">
+                    <h2 class="panel-title"><i class="fas fa-trash-alt"></i> ความสูญเปล่า 8 ประการ</h2>
+                    <p>ความสูญเปล่า 8 ประการ (8 Wastes) ในกระบวนการผลิตที่ต้องระบุและกำจัดเพื่อเพิ่มประสิทธิภาพ</p>
+                    
+                    <div class="waste-item">
+                        <div class="waste-icon"><i class="fas fa-truck-moving"></i></div>
+                        <div>
+                            <h3>1. การขนส่ง (Transportation)</h3>
+                            <p>การเคลื่อนย้ายวัสดุหรือผลิตภัณฑ์มากเกินความจำเป็น</p>
+                        </div>
+                    </div>
+                    
+                    <div class="waste-item">
+                        <div class="waste-icon"><i class="fas fa-boxes"></i></div>
+                        <div>
+                            <h3>2. สินค้าคงคลัง (Inventory)</h3>
+                            <p>การเก็บวัสดุคงคลังมากเกินไปทั้งวัตถุดิบ, งานระหว่างทำและสินค้าสำเร็จรูป</p>
+                        </div>
+                    </div>
+                    
+                    <div class="waste-item">
+                        <div class="waste-icon"><i class="fas fa-walking"></i></div>
+                        <div>
+                            <h3>3. การเคลื่อนไหว (Motion)</h3>
+                            <p>การเคลื่อนไหวของคนหรือเครื่องจักรที่ไม่จำเป็นหรือไม่มีคุณค่า</p>
+                        </div>
+                    </div>
+                    
+                    <div class="waste-item">
+                        <div class="waste-icon"><i class="fas fa-clock"></i></div>
+                        <div>
+                            <h3>4. การรอคอย (Waiting)</h3>
+                            <p>การรอคอยระหว่างกระบวนการทำให้สูญเสียเวลา</p>
+                        </div>
+                    </div>
+                    
+                    <div class="waste-item">
+                        <div class="waste-icon"><i class="fas fa-industry"></i></div>
+                        <div>
+                            <h3>5. การผลิตมากเกินไป (Overproduction)</h3>
+                            <p>การผลิตสินค้ามากกว่าความต้องการของลูกค้าหรือขั้นตอนต่อไป</p>
+                        </div>
+                    </div>
+                    
+                    <div class="waste-item">
+                        <div class="waste-icon"><i class="fas fa-microscope"></i></div>
+                        <div>
+                            <h3>6. การประมวลผลมากเกินไป (Overprocessing)</h3>
+                            <p>การทำงานมากเกินกว่าที่ลูกค้าต้องการหรือจ่ายเงิน</p>
+                        </div>
+                    </div>
+                    
+                    <div class="waste-item">
+                        <div class="waste-icon"><i class="fas fa-bug"></i></div>
+                        <div>
+                            <h3>7. ข้อบกพร่อง (Defects)</h3>
+                            <p>การผลิตสินค้าที่มีข้อบกพร่องต้องแก้ไขหรือทิ้ง</p>
+                        </div>
+                    </div>
+                    
+                    <div class="waste-item">
+                        <div class="waste-icon"><i class="fas fa-brain"></i></div>
+                        <div>
+                            <h3>8. ความสามารถที่ไม่ได้ใช้ (Skills Underutilization)</h3>
+                            <p>ไม่ใช้ทักษะและความคิดสร้างสรรค์ของพนักงานอย่างเต็มที่</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="stats" class="content-section">
+                    <h2 class="panel-title"><i class="fas fa-chart-bar"></i> สถิติการผลิต</h2>
+                    <p>ติดตามค่าสถิติสำคัญของกระบวนการผลิตแบบเรียลไทม์</p>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-title">ประสิทธิภาพโดยรวม (OEE)</div>
+                            <div class="stat-value">74.5%</div>
+                            <div class="progress-bar" style="width: 74.5%; height: 10px; margin: 0 auto;"></div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-title">ผลิตภาพ (Productivity)</div>
+                            <div class="stat-value">85.2%</div>
+                            <div class="progress-bar" style="width: 85.2%; height: 10px; margin: 0 auto;"></div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-title">เวลาผลิตต่อชิ้น (Cycle Time)</div>
+                            <div class="stat-value">5.2 นาที</div>
+                            <div>เป้าหมาย: 4.5 นาที</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-title">อัตราการผลิต (Throughput)</div>
+                            <div class="stat-value">112 ชิ้น/ชม.</div>
+                            <div>เป้าหมาย: 130 ชิ้น/ชม.</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-title">อัตราความบกพร่อง</div>
+                            <div class="stat-value">2.8%</div>
+                            <div>เป้าหมาย: &lt; 1.5%</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-title">เวลาหยุดทำงาน</div>
+                            <div class="stat-value">8.5%</div>
+                            <div>เป้าหมาย: &lt; 5%</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="leaderboard" class="content-section">
+                    <h2 class="panel-title"><i class="fas fa-trophy"></i> อันดับผู้เล่น</h2>
+                    <p>อันดับผู้เล่นสูงสุดตามคะแนนประสิทธิภาพการผลิต</p>
+                    
+                    <div class="leaderboard">
+                        <div class="player-row">
+                            <div class="player-name"><i class="fas fa-crown" style="color: gold;"></i> สมชาย ใจดี</div>
+                            <div class="player-score">OEE: 92.3%</div>
+                        </div>
+                        <div class="player-row">
+                            <div class="player-name"><i class="fas fa-medal" style="color: silver;"></i> สมหญิง มีสุข</div>
+                            <div class="player-score">OEE: 88.7%</div>
+                        </div>
+                        <div class="player-row">
+                            <div class="player-name"><i class="fas fa-medal" style="color: #cd7f32;"></i> วิศวะ จักรกล</div>
+                            <div class="player-score">OEE: 86.5%</div>
+                        </div>
+                        <div class="player-row">
+                            <div class="player-name">อุตสาห์ การผลิต</div>
+                            <div class="player-score">OEE: 84.2%</div>
+                        </div>
+                        <div class="player-row">
+                            <div class="player-name">ลดสูญ เปล่า</div>
+                            <div class="player-score">OEE: 82.1%</div>
+                        </div>
+                        <div class="player-row">
+                            <div class="player-name">เพิ่ม ประสิทธิภาพ</div>
+                            <div class="player-score">OEE: 79.8%</div>
+                        </div>
+                        <div class="player-row">
+                            <div class="player-name">ทีมงาน กลุ่ม 1</div>
+                            <div class="player-score">OEE: 77.4%</div>
+                        </div>
+                        <div class="player-row">
+                            <div class="player-name">ทีมงาน กลุ่ม 2</div>
+                            <div class="player-score">OEE: 74.9%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn btn-primary"><i class="fas fa-play"></i> เริ่มเกมใหม่</button>
+                <button class="btn btn-success"><i class="fas fa-save"></i> บันทึกผลการเล่น</button>
+                <button class="btn"><i class="fas fa-users"></i> โหมดทีม</button>
+                <button class="btn"><i class="fas fa-chart-pie"></i> สรุปผล</button>
+                <button class="btn"><i class="fas fa-redo"></i> รีเซ็ตเกม</button>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2023 หลักสูตรเทคโนโลยีบัณฑิต (เทคโนโลยีอุตสาหกรรม) | คณะเทคโนโลยีอุตสาหกรรม | มหาวิทยาลัยราชภัฏนครศรีธรรมราช</p>
+            <p>เกมนี้ถูกออกแบบเพื่อการศึกษาในวิชาเทคโนโลยีอุตสาหการและการผลิต</p>
+        </footer>
+    </div>
+    
+    <audio id="bg-music" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // Tab switching functionality
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs and content sections
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+                
+                // Add active class to clicked tab
+                tab.classList.add('active');
+                
+                // Show corresponding content section
+                const targetId = tab.getAttribute('data-target');
+                document.getElementById(targetId).classList.add('active');
+            });
+        });
+        
+        // Music control
+        const musicControl = document.querySelector('.music-control');
+        const bgMusic = document.getElementById('bg-music');
+        let musicPlaying = false;
+        
+        musicControl.addEventListener('click', () => {
+            if (musicPlaying) {
+                bgMusic.pause();
+                musicControl.innerHTML = '<i class="fas fa-music"></i>';
+            } else {
+                bgMusic.play();
+                musicControl.innerHTML = '<i class="fas fa-pause"></i>';
+            }
+            musicPlaying = !musicPlaying;
+        });
+        
+        // Simulate game progress
+        setInterval(() => {
+            const progressBars = document.querySelectorAll('.progress-bar');
+            progressBars.forEach(bar => {
+                const currentWidth = parseFloat(bar.style.width);
+                const newWidth = Math.min(100, currentWidth + (Math.random() * 5 - 1.5));
+                bar.style.width = newWidth + '%';
+                
+                // Change color based on performance
+                if (newWidth < 50) {
+                    bar.style.background = '#e74c3c';
+                } else if (newWidth < 75) {
+                    bar.style.background = '#f39c12';
+                } else {
+                    bar.style.background = '#2ecc71';
+                }
+            });
+            
+            // Update OEE randomly
+            const oeeElement = document.querySelector('.stat-value');
+            const currentOee = parseFloat(oeeElement.textContent);
+            const newOee = Math.min(99.9, Math.max(50, currentOee + (Math.random() * 4 - 2)));
+            oeeElement.textContent = newOee.toFixed(1) + '%';
+            
+            // Update progress bar for OEE
+            const oeeProgress = document.querySelector('.stat-card .progress-bar');
+            oeeProgress.style.width = newOee + '%';
+            
+        }, 2000);
+        
+        // Add animation to waste indicators
+        setInterval(() => {
+            const wasteIndicators = document.querySelectorAll('.waste-indicator');
+            wasteIndicators.forEach(indicator => {
+                const count = Math.floor(Math.random() * 5) + 1;
+                indicator.textContent = count;
+                indicator.style.display = Math.random() > 0.3 ? 'flex' : 'none';
+            });
+        }, 3000);
+        
+        // Button animations
+        document.querySelectorAll('.btn, .control-btn').forEach(button => {
+            button.addEventListener('mousedown', () => {
+                button.style.transform = 'translateY(1px)';
+            });
+            button.addEventListener('mouseup', () => {
+                button.style.transform = 'translateY(0)';
+            });
+            button.addEventListener('mouseleave', () => {
+                button.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+</body>
+</html>
